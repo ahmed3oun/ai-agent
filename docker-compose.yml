@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  pg_db:
+      container_name: ai_agent_db_container
+      image: pgvector/pgvector:pg16
+      ports:
+        - "5432:5432"
+      environment:
+        - POSTGRES_USER=postgres
+        - POSTGRES_PASSWORD=postgres
+        - POSTGRES_DB=ai_agent_db
+      restart: always
+      volumes:
+        - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:

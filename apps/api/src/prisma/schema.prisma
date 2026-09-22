@@ -1,0 +1,60 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
+}
+
+datasource db {
+  provider = "postgresql"
+  extensions = [pgvector(map: "vector")]
+}
+
+
+model Document {
+  id        String          @id @default(uuid())
+  title     String
+  filename  String
+  fileType  String          @default("pdf")
+  metadata  Json            @default("{}")
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+  chunks    DocumentChunk[]
+
+  @@map("documents")
+}
+
+model DocumentChunk {
+  id         String                       @id @default(uuid())
+  documentId String
+  document   Document                     @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  chunkIndex Int
+  content    String                       @db.Text
+  embedding  Unsupported("vector(1536)")?
+  metadata   Json                         @default("{}")
+  createdAt  DateTime                     @default(now())
+
+  @@index([documentId])
+  @@map("document_chunks")
+}
+
+model ChatSession {
+  id        String        @id @default(uuid())
+  title     String        @default("New Session")
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+  messages  ChatMessage[]
+
+  @@map("chat_sessions")
+}
+
+model ChatMessage {
+  id        String      @id @default(uuid())
+  sessionId String
+  session   ChatSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  role      String // user, assistant, system, tool
+  content   String      @db.Text
+  metadata  Json?       // tool traces, citations, thinking steps
+  createdAt DateTime    @default(now())
+
+  @@index([sessionId])
+  @@map("chat_messages")
+}
