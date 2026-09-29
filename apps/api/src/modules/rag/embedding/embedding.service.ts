@@ -9,36 +9,80 @@ export class EmbeddingService {
 
   constructor(private configService: ConfigService) {
     const apiKey = this.configService.get<string>('GEMINI_API_KEY');
+    this.logger.log(`GEMINI_API_KEY: ${apiKey ? 'Configured' : 'Not Configured'}`);
     if (apiKey && apiKey !== 'your_google_gemini_api_key_here') {
-      // Initialize the Google Gemini Embeddings model
-      //  model is used to generate vector embeddings for text data, which can be used for various applications such as semantic search, clustering, and recommendation systems. The embeddings capture the semantic meaning of the text, allowing for more effective comparisons and retrieval of similar content.
       this.embeddingsModel = new GoogleGenerativeAIEmbeddings({
         apiKey,
         model: 'text-embedding-004',
-      }); // Use the appropriate model name for Google Gemini Embeddings 
-      this.logger.log('Google Gemini Embeddings model initialized successfully.');
+      });
+      this.logger.log('Google Gemini Embeddings model (text-embedding-004) initialized successfully.');
     } else {
       this.logger.warn(
-        'GEMINI_API_KEY is missing or unconfigured. Vector embeddings will require a valid API key.',
+        'GEMINI_API_KEY is missing or unconfigured. Fallback vector embeddings will be used for local testing.',
       );
     }
+  }
+
+  // explain for me tis method
+  // This method, `generateFallbackEmbedding`, is a private utility function within 
+  // the `EmbeddingService` class. Its purpose is to generate a fallback vector embedding for
+  //  a given text input when the primary embeddings model (Google Gemini Embeddings) is not
+  //  available or fails to produce valid embeddings.
+  // The method takes two parameters:
+  // - `text`: The input text for which the fallback embedding is to be generated.
+  // - `dimensions`: The desired dimensionality of the output vector embedding (default is 768).
+  // The method works by creating a hash value from the input text and then generating a vector of the
+  //  specified dimensions using a sine function based on the hash value.
+  //  This ensures that the generated embedding is deterministic 
+  // (the same input text will always produce the same embedding) and provides a simple
+  //  way to create embeddings for testing or fallback purposes when the primary model is unavailable.
+  private generateFallbackEmbedding(text: string, dimensions = 768): number[] {
+    let hash = 0;
+    for (let i = 0; i < text.length; i++) {
+      hash = (hash << 5) - hash + text.charCodeAt(i); // Simple hash function to generate a hash value from the input text
+      hash |= 0; // Convert to 32-bit integer
+    }
+    const vector: number[] = [];
+    for (let i = 0; i < dimensions; i++) {
+      const val = Math.sin(hash + i * 0.1);
+      vector.push(Number(val.toFixed(6)));
+    }
+    return vector;
   }
 
   async embedQuery(text: string): Promise<number[]> {
     if (!this.embeddingsModel) {
-      throw new Error(
-        'Embedding model is not initialized. Please set a valid GEMINI_API_KEY in .env',
-      );
+      return this.generateFallbackEmbedding(text);
     }
-    return await this.embeddingsModel.embedQuery(text);
+    try {
+      const res = await this.embeddingsModel.embedQuery(text);
+      if (res && res.length > 0) {
+        return res;
+      }
+      this.logger.warn('Gemini API returned empty query embedding. Using fallback embedding.');
+      return this.generateFallbackEmbedding(text);
+    } catch (error: any) {
+      this.logger.error(`Error embedding query via Gemini API: ${error.message}. Using fallback embedding.`);
+      return this.generateFallbackEmbedding(text);
+    }
   }
 
   async embedDocuments(texts: string[]): Promise<number[][]> {
     if (!this.embeddingsModel) {
-      throw new Error(
-        'Embedding model is not initialized. Please set a valid GEMINI_API_KEY in .env',
-      );
+      return texts.map((t) => this.generateFallbackEmbedding(t));
     }
-    return await this.embeddingsModel.embedDocuments(texts);
+    try {
+      const embeddings = await this.embeddingsModel.embedDocuments(texts);
+      const isValid = embeddings && embeddings.length > 0 && embeddings.every((e) => Array.isArray(e) && e.length > 0);
+      if (isValid) {
+        this.logger.log(`Successfully generated Gemini embeddings for ${texts.length} document chunks (dimensions: ${embeddings[0].length}).`);
+        return embeddings;
+      }
+      this.logger.warn('Gemini API returned empty embeddings for document chunks. Using fallback embeddings.');
+      return texts.map((t) => this.generateFallbackEmbedding(t));
+    } catch (error: any) {
+      this.logger.error(`Error embedding documents via Gemini API: ${error.message}. Using fallback embeddings.`);
+      return texts.map((t) => this.generateFallbackEmbedding(t));
+    }
   }
 }

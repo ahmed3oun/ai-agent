@@ -1,8 +1,8 @@
 import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
 import { Injectable, Logger } from "@nestjs/common";
-import { RagService } from "../rag/rag.service";
+import { RagService } from "../rag/rag.service.js";
 import { ConfigService } from "@nestjs/config";
-import { BaseMessage, HumanMessage, SystemMessage } from "@langchain/core/messages";
+import { AIMessage, BaseMessage, HumanMessage, SystemMessage } from "@langchain/core/messages";
 import { StateGraph, END, START, Annotation } from '@langchain/langgraph';
 
 
@@ -46,8 +46,8 @@ export class AgentService {
         } else {
             this.model = new ChatGoogleGenerativeAI({
                 apiKey,
-                model: 'gemini-1.5-flash', // or 'gemini-1.5-turbo' based on your preference
-                temperature: 0.2, // Adjust temperature as needed
+                model: 'gemini-3.8-flash',
+                temperature: 0.2,
             })
         }
     }
@@ -62,11 +62,6 @@ export class AgentService {
         // Build LangGraph State Graph
         const graphBuilder = new StateGraph(AgentState)
         .addNode('retrieve', async (state) => { 
-            // This node is responsible for retrieving relevant documents based on the user's last
-            //  message or prompt. It uses the RagService to perform a hybrid search and fetches
-            //  the top 3 relevant documents. The retrieved documents are then formatted into a context
-            //  string that will be used in the next node for generating a response.
-
             this.logger.log('--- LangGraph Node: RAG Retrieval ---');
             const lastMessage = state.messages[state.messages.length - 1]?.content.toString() || userPrompt;
             try {
@@ -79,10 +74,6 @@ export class AgentService {
             }
         })
         .addNode('generate', async (state) => {
-            // This node is responsible for generating a response based on the retrieved context and
-            //  the user's messages. It constructs a system prompt that instructs the model to answer
-            //  the user's inquiry accurately based on the provided context. The model is then invoked
-            //  with the system prompt and the user's messages to generate a response.
             this.logger.log('--- LangGraph Node: Response Generator ---');
             const systemPrompt = new SystemMessage(
             `You are an Enterprise AI Knowledge Assistant.
@@ -93,9 +84,16 @@ export class AgentService {
                 Be concise, structured, and helpful.`,
             );
 
-            // Invoke the model with the system prompt and the user's messages to generate a response
-            const response = await this.model!.invoke([systemPrompt, ...state.messages]);
-            return { messages: [response] };
+            try {
+                const response = await this.model!.invoke([systemPrompt, ...state.messages]);
+                return { messages: [response] };
+            } catch (err: any) {
+                this.logger.error(`Error invoking Gemini LLM model: ${err.message}`);
+                const fallbackMessage = new AIMessage(
+                    `I received your query and retrieved relevant context, but encountered an error generating the final response from the LLM model: ${err.message}`
+                );
+                return { messages: [fallbackMessage] };
+            }
         });
 
         graphBuilder.addEdge(START, 'retrieve');

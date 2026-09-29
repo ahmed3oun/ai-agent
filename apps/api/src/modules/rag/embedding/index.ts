@@ -1,2 +1,2 @@
-export * from './embedding.service';
-export * from './embedding-split-text.util';
+export * from './embedding.service.js';
+export * from './embedding-split-text.util.js';

@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
-import { RagModule } from 'src/modules/rag/rag.module';
-import { AgentService } from './agent.service';
+import { RagModule } from '../rag/rag.module.js';
+import { AgentService } from './agent.service.js';
 
 @Module({
     imports: [RagModule],

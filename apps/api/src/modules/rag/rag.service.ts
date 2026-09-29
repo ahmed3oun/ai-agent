@@ -1,11 +1,11 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { PrismaService } from 'src/prisma/prisma.service';
-import { EmbeddingService, splitTextIntoChunks } from './embedding';
-import { SearchOptions, IngestDocumentDto } from './dto';
+import { PrismaService } from '../../prisma/prisma.service.js';
+import { EmbeddingService, splitTextIntoChunks } from './embedding/index.js';
+import { SearchOptions, IngestDocumentDto } from './dto/index.js';
 
 @Injectable()
 export class RagService {
-    private readonly logger = new Logger(RagService.name);
+  private readonly logger = new Logger(RagService.name);
 
   constructor(
     private prisma: PrismaService,
@@ -16,7 +16,7 @@ export class RagService {
     this.logger.log(`Ingesting document: "${dto.title}"`);
 
     // 1. Create document record
-    const document = await (this.prisma as any).document.create({
+    const document = await this.prisma.document.create({
       data: {
         title: dto.title,
         filename: dto.filename,
@@ -36,6 +36,9 @@ export class RagService {
     for (let i = 0; i < chunks.length; i++) {
       const chunkText = chunks[i];
       const vector = embeddings[i];
+      if (!vector || vector.length === 0) {
+        throw new Error(`Failed to generate valid vector embedding for chunk ${i}`);
+      }
       const vectorString = `[${vector.join(',')}]`;
 
       await (this.prisma as any).$executeRaw`
@@ -48,9 +51,11 @@ export class RagService {
           ${vectorString}::vector,
           ${JSON.stringify(dto.metadata || {})}::jsonb,
           NOW()
-        );
+        )
       `;
     }
+
+    this.logger.log(`Successfully ingested ${chunks.length} chunks for document ID: ${document.id}`);
 
     return {
       documentId: document.id,
@@ -62,6 +67,9 @@ export class RagService {
   async hybridSearch(options: SearchOptions) {
     const limit = options.limit || 5;
     const queryVector = await this.embeddingService.embedQuery(options.query);
+    if (!queryVector || queryVector.length === 0) {
+      throw new Error(`Failed to generate valid vector embedding for query: "${options.query}"`);
+    }
     const vectorString = `[${queryVector.join(',')}]`;
 
     // Perform vector cosine similarity search with pgvector `<->` operator

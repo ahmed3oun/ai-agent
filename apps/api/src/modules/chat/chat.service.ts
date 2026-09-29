@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { AgentService } from '../agent/agent.service';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { AgentService } from '../agent/agent.service.js';
+import { PrismaService } from '../../prisma/prisma.service.js';
 import { AIMessage, BaseMessage, HumanMessage } from '@langchain/core/messages';
 
 @Injectable()

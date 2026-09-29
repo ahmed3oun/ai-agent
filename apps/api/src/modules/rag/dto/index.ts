@@ -1,2 +1,2 @@
-export * from './ingest-document.dto';
-export * from './search-options-filter.dto';
+export * from './ingest-document.dto.js';
+export * from './search-options-filter.dto.js';

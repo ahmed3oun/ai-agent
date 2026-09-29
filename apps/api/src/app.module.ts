@@ -3,6 +3,9 @@ import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
 import { ConfigModule } from '@nestjs/config';
 import { PrismaModule } from './prisma/prisma.module.js';
+import { ChatModule } from './modules/chat/chat.module.js';
+import { AgentModule } from './modules/agent/agent.module.js';
+import { RagModule } from './modules/rag/rag.module.js';
 
 @Module({
   imports: [
@@ -10,7 +13,10 @@ import { PrismaModule } from './prisma/prisma.module.js';
       isGlobal: true,
       envFilePath: ['.env'],
     }),
-    PrismaModule
+    PrismaModule,
+    RagModule,
+    AgentModule,
+    ChatModule,
   ],
   controllers: [AppController],
   providers: [AppService],

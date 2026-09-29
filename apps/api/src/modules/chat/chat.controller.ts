@@ -1,13 +1,17 @@
 import { Controller, Post, Get, Body, Param } from '@nestjs/common';
-import { ChatService } from './chat.service';
+import { ChatService } from './chat.service.js';
+import { CreateSessionDto } from './dto/create-session.dto.js';
+import { ZodValidationPipe } from 'nestjs-zod';
+import { CreateMessageDto } from './dto/create-message.dto.js';
+
 
 @Controller('chat')
 export class ChatController {
   constructor(private readonly chatService: ChatService) {}
 
   @Post('sessions')
-  async createSession(@Body('title') title?: string) {
-    return await this.chatService.createSession(title);
+  async createSession(@Body(ZodValidationPipe) dto: CreateSessionDto) {
+    return await this.chatService.createSession(dto.title);
   }
 
   @Get('sessions')
@@ -22,9 +26,8 @@ export class ChatController {
 
   @Post('message')
   async sendMessage(
-    @Body('sessionId') sessionId: string,
-    @Body('prompt') prompt: string,
+    @Body(ZodValidationPipe) dto: CreateMessageDto
   ) {
-    return await this.chatService.sendMessage(sessionId, prompt);
+    return await this.chatService.sendMessage(dto.sessionId, dto.prompt);
   }
 }
