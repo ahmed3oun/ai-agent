@@ -49,7 +49,6 @@ export default function Sidebar() {
   });
 
   const addSession = async (data: CreateSessionDto) => {
-    createSessionMutation(data);
     try {
             const createdSession: any = await createSessionMutation(data);
             if (createdSession)
@@ -109,25 +108,46 @@ export default function Sidebar() {
         {/* Chat Sessions List */}
         {activeTab === 'chat' && (
           <div className="p-3">
-            <div className="flex items-center justify-between px-2 mb-2.5">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">History</span>
-              <form onSubmit={handleSubmit(addSession)} className="flex justify-center items-center w-full space-x-2 space-y-2">
+            <div className="flex-col items-center justify-between border-0 px-2 mb-2.5">
+              { /*<form onSubmit={handleSubmit(addSession)} className="flex justify-center items-center w-full space-x-2 space-y-2">
                 <input
                   type="text"
                   placeholder="Session title (optional)"
                   {...register('title')}
                   className="bg-slate-800 text-slate-400 placeholder:text-slate-500 border border-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 />
+                {errors.title && <p className="text-sm text-red-500">{errors.title.message}</p>}
                 <button
-                  type="submit"
-                  disabled={isCreatingSession}
+                  
                   className="text-xs text-indigo-400 hover:text-indigo-300 flex items-center space-x-1 font-medium transition disabled:opacity-50"
                 >
                   <PlusCircle className="w-3.5 h-3.5" />
                   <span>New</span>
                 </button>
+              </form> */}
+              <form
+                onSubmit={handleSubmit(addSession)} 
+                className="border-transparent border-0 flex-col-reverse justify-center items-center w-full space-x-2 space-y-2"
+                >
+                  {/* <label  className="block mb-2.5 text-sm font-medium text-heading sr-only ">New Session</label> */}
+                  <div className="relative border-0 border-transparent">
+                      <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+                          <PlusCircle className="w-3.5 h-3.5" />
+                      </div>
+                      <input 
+                        type="text"
+                        {...register('title')}
+                        className="px-3 py-2.5 border-t-0 border-r-0 border-l-0 border-b-2 bg-neutral-secondary-medium border border-default-medium rounded-base ps-9 text-heading text-sm focus:ring-brand focus:border-brand block w-full "
+                        placeholder="New Session" />
+                      <button  
+                        disabled={isCreatingSession}
+                        className="absolute end-1.5 cursor-pointer bottom-1.5 text-white bg-brand hover:bg-brand-strong box-border border border-amber-50 border-gray-500 focus:ring-4 focus:ring-brand-medium shadow-xs font-medium leading-5 rounded text-xs px-3 py-1.5 focus:outline-none">
+                        New
+                      </button>
+                  </div>
+                  {errors.title && <p className="text-sm text-red-500">{errors.title.message}</p>}
               </form>
-              
+              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">History</span>
             </div>
 
             <div className="space-y-1 max-h-80 overflow-y-auto pr-1 custom-scrollbar">

@@ -28,6 +28,6 @@ export class ChatController {
   async sendMessage(
     @Body(ZodValidationPipe) dto: CreateMessageDto
   ) {
-    return await this.chatService.sendMessage(dto.sessionId, dto.prompt);
+    return await this.chatService.sendMessage(dto.prompt, dto.sessionId);
   }
 }

@@ -52,6 +52,24 @@ export class AgentService {
         }
     }
 
+    async generateSessionTitle(userPrompt: string): Promise<string> {
+        if (!this.model) {
+            throw new Error('Model is not initialized. Please check the GEMINI_API_KEY.');
+        }
+
+        const systemPrompt = new SystemMessage(
+            `You are an AI assistant tasked with generating a suitable title for a research session based on the user's initial prompt. Please create a concise and descriptive title that captures the essence of the user's inquiry.`
+        );
+
+        try {
+            const response = await this.model!.invoke([systemPrompt, new HumanMessage(userPrompt)]);
+            return response.content.toString();
+        } catch (err: any) {
+            this.logger.error(`Error invoking Gemini LLM model for session title generation: ${err.message}`);
+            return 'New Research Session';
+        }
+    }
+
     async runAgent(userPrompt: string, history: BaseMessage[] = []) {
         if (!this.model) {
             throw new Error('Model is not initialized. Please check the GEMINI_API_KEY.');
@@ -110,8 +128,8 @@ export class AgentService {
         const finalAIMessage = resultState.messages[resultState.messages.length - 1];
 
         return {
-        response: finalAIMessage.content,
-        context: resultState.context,
+            response: finalAIMessage.content,
+            context: resultState.context,
         };
     }
 }

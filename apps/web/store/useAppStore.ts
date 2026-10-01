@@ -3,8 +3,8 @@ import { create } from 'zustand';
 interface AppState {
   activeTab: 'chat' | 'knowledge';
   setActiveTab: (tab: 'chat' | 'knowledge') => void;
-  activeSessionId: string | null;
-  setActiveSessionId: (id: string | null) => void;
+  activeSessionId: string | undefined ;
+  setActiveSessionId: (id: string | undefined) => void;
   inputPrompt: string;
   setInputPrompt: (prompt: string) => void;
   expandedTraces: Record<number, boolean>;
@@ -14,7 +14,7 @@ interface AppState {
 export const useAppStore = create<AppState>((set) => ({
   activeTab: 'chat',
   setActiveTab: (tab) => set({ activeTab: tab }),
-  activeSessionId: null,
+  activeSessionId: undefined,
   setActiveSessionId: (id) => set({ activeSessionId: id }),
   inputPrompt: '',
   setInputPrompt: (prompt) => set({ inputPrompt: prompt }),

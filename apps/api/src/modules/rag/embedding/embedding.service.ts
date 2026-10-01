@@ -50,6 +50,22 @@ export class EmbeddingService {
     return vector;
   }
 
+  // explain for me tis method
+  // The `embedQuery` method is an asynchronous function that generates a vector embedding for 
+  // a given text query. 
+  // It first checks if the primary embeddings model (Google Gemini Embeddings) is available.
+  // If the model is available, it attempts to generate the embedding using the model's 
+  // `embedQuery` method. 
+  // If the model returns a valid embedding, it is returned.
+  // If the model is not available or fails to produce a valid embedding 
+  // (e.g., returns an empty result), 
+  // the method falls back to generating a deterministic fallback embedding using the
+  //  `generateFallbackEmbedding` method.
+  // The method also includes error handling: if an error occurs while attempting to
+  //  generate the embedding via the primary model, 
+  // it logs the error and uses the fallback embedding instead. This ensures that
+  //  the application can still function even if the primary model is unavailable
+  //  or encounters issues.
   async embedQuery(text: string): Promise<number[]> {
     if (!this.embeddingsModel) {
       return this.generateFallbackEmbedding(text);

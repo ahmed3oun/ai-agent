@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useRef } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import AgentTraceVisualizer from './AgentTraceVisualizer';
@@ -18,10 +18,18 @@ interface Message {
 interface ChatMessageItemProps {
   message: Message;
   index: number;
+  isLatest?: boolean;
 }
 
-export default function ChatMessageItem({ message, index }: ChatMessageItemProps) {
+export default function ChatMessageItem({ message, index, isLatest }: ChatMessageItemProps) {
   const msgRef = useRef<HTMLDivElement>(null);
+  const traceRef = useRef<HTMLDivElement>(null);
+
+  const isUser = message.role === 'user';
+  const shouldStream = isLatest && !isUser;
+
+  const [displayedContent, setDisplayedContent] = useState(shouldStream ? '' : message.content);
+  const [isStreaming, setIsStreaming] = useState(shouldStream);
 
   // GSAP message entrance animation
   useGSAP(() => {
@@ -33,7 +41,42 @@ export default function ChatMessageItem({ message, index }: ChatMessageItemProps
     });
   }, []);
 
-  const isUser = message.role === 'user';
+  // Text streaming typewriter effect for AI assistant responses
+  useEffect(() => {
+    if (!shouldStream) {
+      setDisplayedContent(message.content);
+      setIsStreaming(false);
+      return;
+    }
+
+    let currentIndex = 0;
+    const fullText = message.content;
+    setDisplayedContent('');
+    setIsStreaming(true);
+
+    const interval = setInterval(() => {
+      currentIndex += Math.min(3, fullText.length - currentIndex);
+      setDisplayedContent(fullText.slice(0, currentIndex));
+
+      if (currentIndex >= fullText.length) {
+        clearInterval(interval);
+        setIsStreaming(false);
+      }
+    }, 15);
+
+    return () => clearInterval(interval);
+  }, [message.content, shouldStream]);
+
+  // GSAP entrance animation for Agent Trace after streaming completes
+  useEffect(() => {
+    if (!isStreaming && traceRef.current && !isUser) {
+      gsap.fromTo(
+        traceRef.current,
+        { opacity: 0, y: 10 },
+        { opacity: 1, y: 0, duration: 0.3, ease: 'power2.out' }
+      );
+    }
+  }, [isStreaming, isUser]);
 
   return (
     <div
@@ -50,16 +93,21 @@ export default function ChatMessageItem({ message, index }: ChatMessageItemProps
         {isUser ? (
           <span>{message.content}</span>
         ) : (
-          <div className="prose prose-invert prose-xs max-w-none text-slate-200 leading-relaxed font-sans">
+          <div className="prose prose-invert prose-xs max-w-none text-slate-200 leading-relaxed font-sans relative">
             <ReactMarkdown remarkPlugins={[remarkGfm]}>
-              {message.content}
+              {displayedContent}
             </ReactMarkdown>
+            {isStreaming && (
+              <span className="inline-block w-1.5 h-3.5 ml-1 bg-indigo-400 animate-pulse rounded-sm align-middle" />
+            )}
           </div>
         )}
       </div>
 
       {!isUser && message.metadata?.context && (
-        <AgentTraceVisualizer index={index} context={message.metadata.context} />
+        <div ref={traceRef}>
+          <AgentTraceVisualizer index={index} context={message.metadata.context} />
+        </div>
       )}
     </div>
   );

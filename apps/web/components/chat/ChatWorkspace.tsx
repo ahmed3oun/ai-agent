@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAppStore } from '@/store/useAppStore';
 import ChatMessageItem from './ChatMessageItem';
@@ -20,6 +20,7 @@ export default function ChatWorkspace() {
   const queryClient = useQueryClient();
   const { activeSessionId, setActiveSessionId, inputPrompt, setInputPrompt } = useAppStore();
   const [messages, setMessages] = useState<Message[]>([]);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
 
   // Fetch session history using TanStack Query
   const { data: sessionHistoryData } = useQuery({
@@ -39,9 +40,16 @@ export default function ChatWorkspace() {
     }
   }, [sessionHistoryData]);
 
+  useEffect(() => {
+    const messagesContainer = messagesContainerRef.current;
+    if (messagesContainer) {
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+  }, [messages]);
+
   // Send message mutation
   const sendMessageMutation = useMutation({
-    mutationFn: async ({ sessionId, prompt }: { sessionId: string | null; prompt: string }) => {
+    mutationFn: async ({ sessionId, prompt }: { sessionId: string | undefined; prompt: string }) => {
       const res = await fetch(`${API_BASE}/chat/message`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -104,7 +112,7 @@ export default function ChatWorkspace() {
       </div>
 
       {/* Messages Thread */}
-      <div className="flex-1 overflow-y-auto p-6 space-y-4">
+      <div ref={messagesContainerRef} className="flex-1 overflow-y-auto p-6 space-y-4">
         {messages.length === 0 ? (
           <div className="h-full flex flex-col items-center justify-center text-center p-8">
             <div className="p-4 rounded-2xl bg-indigo-600/10 border border-indigo-500/20 mb-4 shadow-xl">
@@ -133,7 +141,12 @@ export default function ChatWorkspace() {
           </div>
         ) : (
           messages.map((msg, idx) => (
-            <ChatMessageItem key={idx} message={msg} index={idx} />
+            <ChatMessageItem
+              key={idx}
+              message={msg}
+              index={idx}
+              isLatest={idx === messages.length - 1}
+            />
           ))
         )}
 

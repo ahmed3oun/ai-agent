@@ -1,10 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { AgentService } from '../agent/agent.service.js';
 import { PrismaService } from '../../prisma/prisma.service.js';
 import { AIMessage, BaseMessage, HumanMessage } from '@langchain/core/messages';
 
 @Injectable()
 export class ChatService {
+    private readonly logger = new Logger(ChatService.name);
 
     constructor(
         private readonly agentService: AgentService,
@@ -12,7 +13,7 @@ export class ChatService {
     ) {}
 
     async createSession(title: string = 'New Research Session') {
-        await this.prisma.chatSession.create({
+        return await this.prisma.chatSession.create({
             data: {
                 title: title,
             }
@@ -42,16 +43,23 @@ export class ChatService {
         });
     }
 
-    async sendMessage(sessionId: string, userPrompt: string) {
+    async sendMessage(userPrompt: string, sessionId?: string) {
         // 1. Get or verify session
-        let session = await (this.prisma as any).chatSession.findUnique({
-            where: { id: sessionId },
-            include: { messages: true },
-        });
-
-        if (!session) {
-            session = await this.createSession();
+        let session;
+        if (sessionId) {
+            session = await this.prisma.chatSession.findUnique({
+                where: { id: sessionId },
+                include: { messages: true },
+            });
+            if (!session) {
+                throw new NotFoundException('Session not found');
+            }
+        } else {
+            const title = await this.agentService.generateSessionTitle(userPrompt);
+            session = await this.createSession(title);
         }
+
+        this.logger.log(`Session ID: ${session.id}, User Prompt: ${userPrompt}`);
 
         await this.prisma.chatMessage.create({
             data: {
