@@ -11,6 +11,20 @@ interface AppState {
   toggleTrace: (index: number) => void;
 }
 
+// Ingestion State
+interface IngestionState {
+  docTitle: string;
+  setDocTitle: (title: string) => void;
+  docFilename: string;
+  setDocFilename: (filename: string) => void;
+  docContent: string;
+  setDocContent: (content: string) => void;
+  docTags: string;
+  setDocTags: (tags: string) => void;
+  ingestStatus: string | null;
+  setIngestStatus: (status: string | null) => void;
+}
+
 export const useAppStore = create<AppState>((set) => ({
   activeTab: 'chat',
   setActiveTab: (tab) => set({ activeTab: tab }),
@@ -28,3 +42,15 @@ export const useAppStore = create<AppState>((set) => ({
     })),
 }));
 // Functions like `setActiveTab`, `setActiveSessionId`, `setInputPrompt`, and `toggleTrace` are used to update the state in the store. The `expandedTraces` object keeps track of which traces are expanded, allowing for toggling their state based on their index.
+export const useDocIngestionStore = create<IngestionState>((set) => ({
+  docTitle: '',
+  setDocTitle: (title) => set({ docTitle: title }),
+  docFilename: '',
+  setDocFilename: (filename) => set({ docFilename: filename }),
+  docContent: '',
+  setDocContent: (content) => set({ docContent: content }),
+  docTags: '',
+  setDocTags: (tags) => set({ docTags: tags }),
+  ingestStatus: null,
+  setIngestStatus: (status) => set({ ingestStatus: status }),
+}));

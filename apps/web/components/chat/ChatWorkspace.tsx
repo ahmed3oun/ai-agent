@@ -126,16 +126,64 @@ export default function ChatWorkspace() {
             </p>
             <div className="grid grid-cols-2 gap-3 max-w-lg w-full text-left">
               <button
-                onClick={() => setInputPrompt('What are our company document policies?')}
+                onClick={() => setInputPrompt('What happens if a tenant exceeds 150% of their rate limit burst threshold?')}
                 className="p-3.5 bg-slate-900/80 border border-slate-800 rounded-2xl hover:border-indigo-500/50 text-xs text-slate-300 transition-all shadow-sm"
               >
-                💡 "What are our document policies?"
+                💡 "What happens if a tenant exceeds 150% of their rate limit burst threshold?"
               </button>
               <button
-                onClick={() => setInputPrompt('Summarize key architectural guidelines.')}
+                onClick={() => setInputPrompt('What algorithm is used to encrypt PII data before saving it to PostgreSQL?')}
                 className="p-3.5 bg-slate-900/80 border border-slate-800 rounded-2xl hover:border-indigo-500/50 text-xs text-slate-300 transition-all shadow-sm"
               >
-                📚 "Summarize key architectural guidelines."
+                📚 "What algorithm is used to encrypt PII data before saving it to PostgreSQL?"
+              </button>
+              <button
+                onClick={() => setInputPrompt('How much is the home office setup stipend and how many days do employees have to submit receipts?')}
+                className="p-3.5 bg-slate-900/80 border border-slate-800 rounded-2xl hover:border-indigo-500/50 text-xs text-slate-300 transition-all shadow-sm"
+              >
+                📝 "How much is the home office setup stipend and how many days do employees have to submit receipts?"
+              </button>
+              <button
+                onClick={() => setInputPrompt('What is the maximum hotel accommodation budget per night for international travel?')}
+                className="p-3.5 bg-slate-900/80 border border-slate-800 rounded-2xl hover:border-indigo-500/50 text-xs text-slate-300 transition-all shadow-sm"
+              >
+                🏨 "What is the maximum hotel accommodation budget per night for international travel?"
+              </button>
+              <button
+                onClick={() => setInputPrompt('What is our target uptime SLA and when are scheduled maintenance windows allowed?')}
+                className="p-3.5 bg-slate-900/80 border border-slate-800 rounded-2xl hover:border-indigo-500/50 text-xs text-slate-300 transition-all shadow-sm"
+              >
+                🕒 "What is our target uptime SLA and when are scheduled maintenance windows allowed?"
+              </button>
+              <button
+                onClick={() => setInputPrompt('What are the HNSW index parameters configured for vector search in PostgreSQL?')}
+                className="p-3.5 bg-slate-900/80 border border-slate-800 rounded-2xl hover:border-indigo-500/50 text-xs text-slate-300 transition-all shadow-sm"
+              >
+                🕒 "What are the HNSW index parameters configured for vector search in PostgreSQL?"
+              </button>
+              <button
+                onClick={() => setInputPrompt('How long is LangSmith telemetry data retained for compliance audits?')}
+                className="p-3.5 bg-slate-900/80 border border-slate-800 rounded-2xl hover:border-indigo-500/50 text-xs text-slate-300 transition-all shadow-sm"
+              >
+                🕒 "How long is LangSmith telemetry data retained for compliance audits?"
+              </button>
+              <button
+                onClick={() => setInputPrompt('How does the system handle PII like Social Security Numbers before sending prompts to external APIs?')}
+                className="p-3.5 bg-slate-900/80 border border-slate-800 rounded-2xl hover:border-indigo-500/50 text-xs text-slate-300 transition-all shadow-sm"
+              >
+                 "How does the system handle PII like Social Security Numbers before sending prompts to external APIs?"
+              </button>
+              <button
+                onClick={() => setInputPrompt('Which HTTP headers are returned when a developer exceeds their rate limit?')}
+                className="p-3.5 bg-slate-900/80 border border-slate-800 rounded-2xl hover:border-indigo-500/50 text-xs text-slate-300 transition-all shadow-sm"
+              >
+                "Which HTTP headers are returned when a developer exceeds their rate limit?"
+              </button>
+              <button
+                onClick={() => setInputPrompt('Which HTTP headers are returned when a developer exceeds their rate limit?')}
+                className="p-3.5 bg-slate-900/80 border border-slate-800 rounded-2xl hover:border-indigo-500/50 text-xs text-slate-300 transition-all shadow-sm"
+              >
+                "Which HTTP headers are returned when a developer exceeds their rate limit?"
               </button>
             </div>
           </div>

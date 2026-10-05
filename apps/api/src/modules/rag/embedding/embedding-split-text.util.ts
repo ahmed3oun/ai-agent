@@ -1,5 +1,5 @@
 
-export function splitTextIntoChunks(text: string, chunkSize = 300, overlap = 50): string[] {
+export function splitTextIntoChunks(text: string, chunkSize = 600, overlap = 100): string[] {
   const chunks: string[] = [];
   console.log('-----------------START/ Splitting text into chunks -----------------');
   let start = 0;
