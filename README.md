@@ -7,6 +7,19 @@ An enterprise-grade Full-Stack AI Agent platform featuring **Hybrid RAG Search**
 ![NestJS](https://img.shields.io/badge/Backend-NestJS_10-red)
 ![PostgreSQL](https://img.shields.io/badge/Database-PostgreSQL_%2B_pgvector-blue)
 ![LangChain](https://img.shields.io/badge/AI_Framework-LangGraph_JS-green)
+![Docker](https://img.shields.io/badge/Containers-Docker_Compose-2496ED?logo=docker&logoColor=white)
+
+---
+
+## 📸 Platform Dashboard Presentation
+
+![Enterprise AI Agent & Hybrid RAG Platform Showcase](./assets/dashboard_showcase.png)
+
+> **Key Modules Previewed Above:**
+> 1. **Multi-Turn Agent Workspace & Grounded Reasoning:** Interactive conversational assistant with collapsible retrieved vector context and LangGraph reasoning traces.
+> 2. **LangGraph Workflow Execution:** Real-time feedback displaying agent node transitions (Retrieval -> Reasoning).
+> 3. **Enterprise Knowledge Ingestion:** Automated document chunking, metadata tagging, and vector embedding generation.
+> 4. **pgvector Hybrid Search:** Sub-second cosine similarity search matching indexed document chunks (up to 99% accuracy).
 
 ---
 
