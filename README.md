@@ -56,21 +56,19 @@ flowchart TD
 - Node.js `v20+` or `v26+` & `npm`
 - Docker & Docker Desktop
 
-### 2. Database Setup (Docker + pgvector)
+### 2. Production Containers
+
+Copy `.env.example` to `.env`, replace the PostgreSQL password and Gemini API key, and keep the password in `DATABASE_URL` in sync with `POSTGRES_PASSWORD`. Then build and start the full production stack:
+
 ```bash
-docker compose up -d
+docker compose up --build -d
 ```
 
-### 3. Environment Variables
-Copy `.env.example` to `.env` in the root directory and provide your **Gemini API Key**:
-```env
-DATABASE_URL="postgresql://ai_user:ai_password@localhost:5432/enterprise_ai_db?schema=public"
-GEMINI_API_KEY="your_google_gemini_api_key_here"
-PORT=3001
-NEXT_PUBLIC_API_URL="http://localhost:3001"
-```
+The web app is available at [http://localhost:3000](http://localhost:3000), the API at [http://localhost:3001/api](http://localhost:3001/api), and PostgreSQL is exposed on port `5432`. Set `NEXT_PUBLIC_API_URL` to the public API URL before building when deploying on a host other than localhost.
 
-### 4. Running the Backend (NestJS)
+To run only PostgreSQL for local development, use `docker compose up -d pg_db`. Set the local API's `DATABASE_URL` in `apps/api/.env` to use `localhost` instead of `pg_db`.
+
+### 3. Running the Backend (NestJS)
 ```bash
 cd apps/api
 npm install
@@ -78,7 +76,7 @@ npx prisma generate
 npm run start:dev
 ```
 
-### 5. Running the Frontend (Next.js)
+### 4. Running the Frontend (Next.js)
 ```bash
 cd apps/web
 npm install

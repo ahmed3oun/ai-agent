@@ -13,6 +13,7 @@
   "dependencies": {
     "@gsap/react": "^2.1.2",
     "@hookform/resolvers": "^5.9.1",
+    "@repo/schemas": "*",
     "@repo/ui": "*",
     "@tanstack/react-query": "^5.104.0",
     "axios": "^1.20.0",

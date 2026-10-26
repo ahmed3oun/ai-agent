@@ -20,7 +20,8 @@ async function bootstrap() {
     credentials: true,
   });
 
-  await app.listen(configService.getOrThrow<number>('PORT') ?? 4000, '0.0.0.0');
-  logger.log(`🚀 NestJS Backend running on http://localhost:${configService.getOrThrow<number>('PORT') ?? 4000}`);
+  const port = Number(configService.get<string>('PORT') ?? 4000);
+  await app.listen(port, '0.0.0.0');
+  logger.log(`🚀 NestJS Backend running on http://localhost:${port}`);
 }
 bootstrap();
